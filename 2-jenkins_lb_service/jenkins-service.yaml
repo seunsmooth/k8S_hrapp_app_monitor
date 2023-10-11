@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: pipeline
+  name: jenkins-deploy
+  labels:
+    app: jenkins
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      containers:
+      - name: jenkins
+        image: jenkins/jenkins:latest
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            memory: 256Mi
+            cpu: "0.8"
+        ports: 
+        - containerPort: 8080
+--- 
+apiVersion: v1
+kind: Service 
+metadata: 
+  name: jenkins-svc
+  namespace: pipeline
+spec:
+ selector:
+   app: jenkins
+ ports:
+  -  port: 8080
+     targetPort: 8080 
+ type: ClusterIP
+---
+apiVersion: v1
+kind: Service 
+metadata: 
+  name: jenkins-exlb-svc
+  namespace: pipeline
+spec:
+ selector:
+   app: jenkins
+ ports:
+  -  port: 8080
+     targetPort: 8080
+ type: LoadBalancer
+
+
